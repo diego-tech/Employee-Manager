@@ -17,9 +17,12 @@ class CreateUsersTable extends Migration
             $table->id();
             $table->string('name');
             $table->string('email')->unique();
-            $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
-            $table->rememberToken();
+            $table->enum('workplace', ['Direccion','RRHH','Empleado']);
+            $table->string('salary');
+            $table->text('biography');
+
+            $table->string('api_token')->unique()->nullable();
             $table->timestamps();
         });
     }
