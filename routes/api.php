@@ -14,7 +14,7 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::middleware([])->group(function () {
+Route::middleware(['api-auth', 'check_user_profile'])->group(function () {
     Route::put('/register', [UserController::class, 'register']);
     Route::post('/login', [UserController::class, 'login']);
 });
