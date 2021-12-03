@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 
 class UserController extends Controller
@@ -27,13 +28,13 @@ class UserController extends Controller
             $data = json_decode($data);
             
             if($validator->fails()){
-                $response['msg'] = $validator->errors()->first();
+                $response['msg'] = "Ha ocurrido un error " . $validator->errors()->first();
             } else {
                 $user = new User();
 
                 $user->name = $data->name;
                 $user->email = $data->email;
-                $user->password = $data->password;
+                $user->password = Hash::make($data->password);
                 $user->workplace = $data->workplace;
                 $user->salary = $data->salary;
                 $user->biography = $data->biography;
@@ -43,19 +44,44 @@ class UserController extends Controller
             }
         } catch (\Exception $e) {
             $response['msg'] = "Ha ocurrido un error " . $e->getMessage();
+            $response['status'] = 0;
+        }
+        return response()->json($response);
+    }
+    
+    public function login(Request $request){
+        $response = ["status" => 1, "msg" => ""];
+        
+        $data = $request->getContent();
+        $data = json_decode($data);
+
+        try {
+            $user = User::where('email', $data->email)->first();
+            
+            if ($user) {
+                $hash_check = Hash::check($data->password, $user->password);
+
+                if($hash_check){
+                    do {
+                        $user_token = Hash::make(now().$user->id);
+                        $user->api_token = $user_token;
+                        $user->save();
+                    } while ($user->api_token != $user_token);
+
+                    $response['msg'] = "Token: " . $user_token;
+                } else {
+                    $response['msg'] = "Ha ocurrido un error, contraseña introducida erronea";
+                    $response['status'] = 0;
+                }
+            } else {
+                $response['msg'] = "Este usuario no está registrado";
+                $response['status'] = 0;
+            }
+        } catch (\Exception $e) {
+            $response['msg'] = "Ha ocurrido un error " . $e->getMessage();
+            $response['status'] = 0;
         }
 
-        // Validator
-        // https://laravel.com/docs/8.x/validation
-        // $validator = Validator::make(json_decode($request->getContent(), true)[]);
-
-        // Middleware
-        // https://laravel.com/docs/8.x/middleware
-
-
-        // do while token generate
-        // pasarle middleware kernel
-        // ->withoutMiddleware([EnsureTokenIsValid::class]
         return response()->json($response);
     }
 }
