@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\Validator;
 class UserController extends Controller
 {
     public function register(Request $request){
-        
+
         $response = ["status" => 1, "msg" => ""];
 
         $data = $request->getContent();
