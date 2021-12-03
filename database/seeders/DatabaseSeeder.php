@@ -18,7 +18,7 @@ class DatabaseSeeder extends Seeder
      */
     public function run()
     {
-        $workplace_array = ['Direccion','RRHH','Empleado'];
+        $workplace_array = ['Directivo','RRHH','Empleado'];
 
         for ($i = 1; $i < 20; $i++) {
             DB::table('users')->insert([
