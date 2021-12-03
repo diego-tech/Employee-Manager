@@ -18,24 +18,20 @@ class CheckUserProfile
     public function handle(Request $request, Closure $next)
     {
         $response = ["status" => 1, "msg" => ""];
+    
+        $user = $request->user;
 
-        if($request->has('api_token')) {
-            // $token = $request->api_token;
-            // $user = User::where('api_token', $token)->first();
-            
-            $token = $request->api_token;
-            $user = User::find($token);
-
-            if(!$user){
-                $response["msg"] = "No";
-                return response()->json($response);
+        if(!$user){
+            $response["msg"] = "Usuario no Existe";
+            $response["status"] = 0;
+        } else {
+            if($user->workplace == 'RRHH' || $user->workplace == 'Directivo'){
+                return $next($request);
             } else {
-                if($user->workplace == 'RRHH' || $user->workplace == 'Directivo'){
-                    return $next($request);
-                } else {
-                    return response()->json($response);
-                }
+                $response["msg"] = "No tienes los permisos suficentes";
+                $response["status"] = 0;
             }
         }
+        return response()->json($response);
     }
 }
