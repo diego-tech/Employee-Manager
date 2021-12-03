@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 
@@ -83,5 +84,47 @@ class UserController extends Controller
         }
 
         return response()->json($response);
+    }
+
+    public function employee_list(Request $request){
+        $response = ["status" => 1, "msg" => ""];
+
+        $req_user = $request->user;
+
+        try {
+            if ($req_user->workplace == "Directivo"){
+                $users = User::where('workplace', 'Empleado')
+                    ->orWhere('workplace', 'RRHH')
+                    ->get();
+                
+                $response['msg'] = $this->employee_list_query($users);
+                $response['status'] = 1;
+            }
+
+            if ($req_user->workplace == "RRHH") {
+                $users = User::where('workplace', 'Empleado')->get();
+                    
+                $response['msg'] = $this->employee_list_query($users);
+                $response['status'] = 1;
+            }
+
+        } catch (\Exception $e) {
+            $response['msg'] = "Ha ocurrido un error " . $e->getMessage();
+            $response['status'] = 0;
+        }
+
+        return response()->json($response);
+    }
+
+    private function employee_list_query($users){
+        foreach ($users as $user) {
+            $query_response['Name'] = $user->name;
+            $query_response['Workplace'] = $user->workplace;
+            $query_response['Salary'] = $user->salary;
+
+            $result_query[] = $query_response;
+        }
+
+        return $result_query;
     }
 }
