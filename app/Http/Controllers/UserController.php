@@ -155,6 +155,19 @@ class UserController extends Controller
 
         return response()->json($response);
     }
+
+    public function see_profile(Request $request){
+        $response = ["status" => 1, "msg" => ""];
+
+        try {
+            $response['msg'] = $request->user;
+            $response['status'] = 1;
+        } catch (\Exception $e) {
+            $response['msg'] = "Ha ocurrido un error " . $e->getMessage();
+            $response['status'] = 0;
+        }
+        return response()->json($response);
+    }
  
     private function employee_list_response($users){
         foreach ($users as $user) {
