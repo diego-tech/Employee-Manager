@@ -97,14 +97,14 @@ class UserController extends Controller
                     ->orWhere('workplace', 'RRHH')
                     ->get();
                 
-                $response['msg'] = $this->employee_list_query($users);
+                $response['msg'] = $this->employee_list_response($users);
                 $response['status'] = 1;
             }
 
             if ($req_user->workplace == "RRHH") {
                 $users = User::where('workplace', 'Empleado')->get();
                     
-                $response['msg'] = $this->employee_list_query($users);
+                $response['msg'] = $this->employee_list_response($users);
                 $response['status'] = 1;
             }
 
@@ -116,7 +116,47 @@ class UserController extends Controller
         return response()->json($response);
     }
 
-    private function employee_list_query($users){
+    public function employee_detail(Request $request){
+        $response = ["status" => 1, "msg" => ""];
+
+        $req_user = $request->user;
+
+        $user_id = $request->user_id;
+
+        try {
+            if ($user_id) {
+                if ($req_user->workplace == "Directivo"){
+                    $user = User::where('id', $user_id)->first();    
+                    
+                    $response['msg'] = $this->employee_detail_response($user);
+                    $response['status'] = 1;
+                }
+    
+                if ($req_user->workplace == "RRHH") {
+                    $user = User::where('id', $user_id)->first();
+
+                    if($user->workplace == "Directivo") {
+                        $response['msg'] = "No tienes permisos para ver este usuario";
+                        $response['status'] = 0;
+                    } else {
+                        $response['msg'] = $this->employee_detail_response($user);
+                        $response['status'] = 1;
+                    }
+                }
+            } else {
+                $response['msg'] = "Introduce el id del usuario";
+                $response['status'] = 0;
+            }
+
+        } catch (\Exception $e) {
+            $response['msg'] = "Ha ocurrido un error " . $e->getMessage();
+            $response['status'] = 0;
+        }
+
+        return response()->json($response);
+    }
+ 
+    private function employee_list_response($users){
         foreach ($users as $user) {
             $query_response['Name'] = $user->name;
             $query_response['Workplace'] = $user->workplace;
@@ -126,5 +166,15 @@ class UserController extends Controller
         }
 
         return $result_query;
+    }
+
+    private function employee_detail_response($user){
+        $query_response['Name'] = $user->name;
+        $query_response['Email'] = $user->email;
+        $query_response['Workplace'] = $user->workplace;
+        $query_response['Biography'] = $user->biography;
+        $query_response['Salary'] = $user->salary;
+
+        return $query_response;
     }
 }

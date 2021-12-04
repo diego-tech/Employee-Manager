@@ -18,4 +18,6 @@ Route::middleware(['api_auth', 'check_user_profile'])->group(function () {
     Route::put('/register', [UserController::class, 'register']);
     Route::post('/login', [UserController::class, 'login'])->withoutMiddleware(['api_auth', 'check_user_profile']);
     Route::get('/employee_list', [UserController::class, 'employee_list']);
+    Route::get('/employee_detail', [UserController::class, 'employee_detail']);
+    Route::get('/employee_detail', [UserController::class, 'employee_detail'])->withoutMiddleware('api_auth');
 });
