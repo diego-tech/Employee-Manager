@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Models\User;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 
@@ -169,6 +168,37 @@ class UserController extends Controller
         return response()->json($response);
     }
  
+    public function retrieve_password(Request $request){
+        $response = ["status" => 0, "msg" => ""];
+
+        $email = $request->email;
+
+        try {
+            if ($request->has('email')){
+                $user = User::where('email', $email)->first();
+
+                if($user) {
+                    $password = "aksdjhjkh2289hl"; // Modify to rand password
+
+                    $user->password = Hash::make($password);
+                    $user->save();
+
+                    $response['msg'] = "Tu nueva contraseña es: " . $password;
+                    $response['status'] = 1;
+                }
+            } else {
+                $response['msg'] = "Introduzca el email";
+                $response['status'] = 0;
+            }
+        } catch (\Exception $e) {
+            $response['msg'] = "Ha ocurrido un error " . $e->getMessage();
+            $response['status'] = 0;
+        }
+
+
+        return response()->json($response);
+    }
+
     private function employee_list_response($users){
         foreach ($users as $user) {
             $query_response['Name'] = $user->name;
