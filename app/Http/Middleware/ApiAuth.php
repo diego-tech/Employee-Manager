@@ -19,7 +19,6 @@ class ApiAuth
     {
         $response = ["status" => 1, "msg" => ""];
 
-        
         if ($request->has('api_token')){
             $user_token = $request->api_token;
             $user = User::where('api_token', $user_token)->first();

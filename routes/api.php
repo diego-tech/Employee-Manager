@@ -21,4 +21,5 @@ Route::middleware(['api_auth', 'check_user_profile'])->group(function () {
     Route::get('/employee_detail', [UserController::class, 'employee_detail']);
     Route::get('/see_profile', [UserController::class, 'see_profile'])->withoutMiddleware('check_user_profile');
     Route::put('/retrieve_password', [UserController::class, 'retrieve_password'])->withoutMiddleware('check_user_profile');
+    Route::post('/modify_data', [UserController::class, 'modify_data']);
 });

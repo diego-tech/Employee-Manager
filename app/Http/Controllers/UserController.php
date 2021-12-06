@@ -61,12 +61,10 @@ class UserController extends Controller
             if ($user) {
                 $hash_check = Hash::check($data->password, $user->password);
 
-                if($hash_check){
-                    do {
-                        $user_token = Hash::make(now().$user->id);
-                        $user->api_token = $user_token;
-                        $user->save();
-                    } while ($user->api_token != $user_token);
+                if($hash_check){ 
+                    $user_token = Hash::make(now().$user->id);
+                    $user->api_token = $user_token;
+                    $user->save();
 
                     $response['msg'] = "Token: " . $user_token;
                 } else {
@@ -178,7 +176,8 @@ class UserController extends Controller
                 $user = User::where('email', $email)->first();
 
                 if($user) {
-                    $password = "aksdjhjkh2289hl"; // Modify to rand password
+                    $characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ!@#$%^&*()_+-=[]{};:,./?\|`~';
+                    $password = $this->randomPassword($characters, 6);
 
                     $user->password = Hash::make($password);
                     $user->save();
@@ -199,6 +198,94 @@ class UserController extends Controller
         return response()->json($response);
     }
 
+    public function modify_data(Request $request){
+        $response = ["status" => 1, "msg" => ""];
+
+        $req_user = $request->user;
+        $user_id = $request->user_id;
+
+        $data = $request->getContent();
+
+        $validator = Validator::make(json_decode($data, true),[
+            'name' => 'max:255',
+            'email' => 'unique:users|max:255',
+            'password' => 'regex:/(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[^A-Za-z0-9]).{6,}/',
+            'workplace' => 'in:Directivo,RRHH,Empleado',
+            'salary' => 'max:255',
+            'biography' => 'mas:255'
+        ]);
+        
+        $data = json_decode($data);
+
+        try {
+            if ($user_id) {
+                if ($req_user->workplace == "Directivo"){
+                    $user = User::where('id', $user_id)->first();    
+
+                    if($user->workplace == "Directivo" && $req_user->id != $user_id) {
+                        $response['msg'] = "No tienes permisos para modificar este usuario";
+                        $response['status'] = 0;
+                    } else {
+
+                        $this->checkModifyData($data, $user);
+
+                        if($validator->fails()){
+                            $response['msg'] = "Ha ocurrido un error " . $validator->errors()->first();
+                        } else {
+                            $user->save();
+                            $response['msg'] = "Usuario modificado correctamente";
+                            $response['status'] = 1;
+                        }
+                    }
+                }
+
+                if ($req_user->workplace == "RRHH") {
+                    $user = User::where('id', $user_id)->first();
+
+                    if($user->workplace == "Directivo") {
+                        $response['msg'] = "No tienes permisos para ver este usuario";
+                        $response['status'] = 0;
+                    } else {
+                        $response['msg'] = $this->employee_detail_response($user);
+                        $response['status'] = 1;
+                    }
+                } 
+            } else {
+                $response['msg'] = "Introduce el id del usuario";
+                $response['status'] = 0;
+            }
+
+        } catch (\Exception $e) {
+            $response['msg'] = "Ha ocurrido un error " . $e->getMessage();
+            $response['status'] = 0;
+        }
+
+        return response()->json($response);
+    }
+
+    private function checkModifyData($data, $user){
+        if(isset($data->name))
+            $user->name = $data->name;
+
+        if(isset($data->email))
+            $user->email = $data->email;
+
+        if(isset($data->password))
+            $user->password = Hash::make($data->password);
+
+        if(isset($data->workplace))
+            $user->workplace = $data->workplace;
+
+        if(isset($data->salary))
+            $user->salary = $data->salary;
+            
+        if(isset($data->biography))
+            $user->biography = $data->biography;
+
+        return $user;
+    }
+
+    /* Employees List Query Response*/
     private function employee_list_response($users){
         foreach ($users as $user) {
             $query_response['Name'] = $user->name;
@@ -211,6 +298,7 @@ class UserController extends Controller
         return $result_query;
     }
 
+    /* Employee Detail Query Response */
     private function employee_detail_response($user){
         $query_response['Name'] = $user->name;
         $query_response['Email'] = $user->email;
@@ -220,4 +308,16 @@ class UserController extends Controller
 
         return $query_response;
     }
+
+    /* Generate Random Password */
+    function randomPassword($char, $length)
+    {
+        $combinationRandom = "";
+        
+        for ($i = 0; $i < $length; $i++) {
+            $combinationRandom .= substr(str_shuffle($char), 0, $length);
+        }
+    
+        return $combinationRandom;
+    }    
 }
