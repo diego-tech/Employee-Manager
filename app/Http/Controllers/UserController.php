@@ -219,9 +219,9 @@ class UserController extends Controller
 
         try {
             if ($user_id) {
-                if ($req_user->workplace == "Directivo"){
-                    $user = User::where('id', $user_id)->first();    
+                $user = User::where('id', $user_id)->first();
 
+                if ($req_user->workplace == "Directivo"){
                     if($user->workplace == "Directivo" && $req_user->id != $user_id) {
                         $response['msg'] = "No tienes permisos para modificar este usuario";
                         $response['status'] = 0;
@@ -231,6 +231,7 @@ class UserController extends Controller
 
                         if($validator->fails()){
                             $response['msg'] = "Ha ocurrido un error " . $validator->errors()->first();
+                            $response['status'] = 0;
                         } else {
                             $user->save();
                             $response['msg'] = "Usuario modificado correctamente";
@@ -240,14 +241,20 @@ class UserController extends Controller
                 }
 
                 if ($req_user->workplace == "RRHH") {
-                    $user = User::where('id', $user_id)->first();
-
                     if($user->workplace == "Directivo") {
-                        $response['msg'] = "No tienes permisos para ver este usuario";
+                        $response['msg'] = "No tienes permisos para modificar este usuario";
                         $response['status'] = 0;
                     } else {
-                        $response['msg'] = $this->employee_detail_response($user);
-                        $response['status'] = 1;
+                        $this->checkModifyData($data, $user);
+
+                        if($validator->fails()){
+                            $response['msg'] = "Ha ocurrido un error " . $validator->errors()->first();
+                            $response['status'] = 0;
+                        } else {
+                            $user->save();
+                            $response['msg'] = "Usuario modificado correctamente";
+                            $response['status'] = 1;
+                        }
                     }
                 } 
             } else {
