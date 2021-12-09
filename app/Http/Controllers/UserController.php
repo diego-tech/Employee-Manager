@@ -57,12 +57,12 @@ class UserController extends Controller
 
         try {
             $user = User::where('email', $data->email)->first();
-            
+ 
             if ($user) {
                 $hash_check = Hash::check($data->password, $user->password);
 
                 if($hash_check){ 
-                    $user_token = Hash::make(now().$user->id);
+                    $user_token = Hash::make(now().$user->id.$user->name);
                     $user->api_token = $user_token;
                     $user->save();
 
@@ -241,7 +241,7 @@ class UserController extends Controller
                 }
 
                 if ($req_user->workplace == "RRHH") {
-                    if($user->workplace == "Directivo") {
+                    if($user->workplace == "Directivo" || $user->workplace == "RRHH" && $req_user->id != $user_id) {
                         $response['msg'] = "No tienes permisos para modificar este usuario";
                         $response['status'] = 0;
                     } else {
