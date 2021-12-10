@@ -2,9 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Mail\RetrievePassword;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Validator;
 
 class UserController extends Controller
@@ -122,17 +124,19 @@ class UserController extends Controller
 
         try {
             if ($user_id) {
+                $user = User::where('id', $user_id)->first();    
                 if ($req_user->workplace == "Directivo"){
-                    $user = User::where('id', $user_id)->first();    
-                    
-                    $response['msg'] = $this->employee_detail_response($user);
-                    $response['status'] = 1;
+                    if($user->workplace == "Directivo" && $req_user->id != $user_id){
+                        $response['msg'] = "No tienes permisos para ver este usuario";
+                        $response['status'] = 0;
+                    } else{
+                        $response['msg'] = $this->employee_detail_response($user);
+                        $response['status'] = 1;
+                    }
                 }
     
                 if ($req_user->workplace == "RRHH") {
-                    $user = User::where('id', $user_id)->first();
-
-                    if($user->workplace == "Directivo") {
+                    if($user->workplace == "Directivo" || $user->workplace == "RRHH" && $req_user->id != $user_id) {
                         $response['msg'] = "No tienes permisos para ver este usuario";
                         $response['status'] = 0;
                     } else {
@@ -179,6 +183,7 @@ class UserController extends Controller
                     $characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ!@#$%^&*()_+-=[]{};:,./?\|`~';
                     $password = $this->randomPassword($characters, 6);
 
+                    //Mail::to($user->email)->send(new RetrievePassword("Recuperar Contraseña","Recuperar Contraseña", $password));
                     $user->password = Hash::make($password);
                     $user->save();
 
@@ -270,6 +275,7 @@ class UserController extends Controller
         return response()->json($response);
     }
 
+    /* Check If User Want Modify Data */
     private function checkModifyData($data, $user){
         if(isset($data->name))
             $user->name = $data->name;
