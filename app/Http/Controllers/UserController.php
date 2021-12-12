@@ -188,8 +188,7 @@ class UserController extends Controller
                     $user->save();
 
                     $response['msg'] = "Tu nueva contraseña es: " . $password;
-                    $response['status'] = 1;
-                }
+                    $response['status'] = 1;                }
             } else {
                 $response['msg'] = "Introduzca el email";
                 $response['status'] = 0;
