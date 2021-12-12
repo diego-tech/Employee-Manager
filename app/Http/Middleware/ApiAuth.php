@@ -19,8 +19,10 @@ class ApiAuth
     {
         $response = ["status" => 1, "msg" => ""];
 
-        if ($request->has('api_token')){
-            $user_token = $request->api_token;
+        $headers = $request->header('Authorization');
+
+        if ($headers){
+            $user_token = $headers;
             $user = User::where('api_token', $user_token)->first();
 
             if(!$user) {
