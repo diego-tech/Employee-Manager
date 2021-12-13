@@ -30,7 +30,7 @@ class UserController extends Controller
             $data = json_decode($data);
             
             if($validator->fails()){
-                $response['msg'] = "Ha ocurrido un error " . $validator->errors()->first();
+                $response['msg'] = "Ha ocurrido un error: " . $validator->errors()->first();
             } else {
                 $user = new User();
 
@@ -45,7 +45,7 @@ class UserController extends Controller
                 $response['msg'] = "Usuario guardado correctamente";
             }
         } catch (\Exception $e) {
-            $response['msg'] = "Ha ocurrido un error " . $e->getMessage();
+            $response['msg'] = "Ha ocurrido un error: " . $e->getMessage();
             $response['status'] = 0;
         }
         return response()->json($response);
@@ -82,7 +82,7 @@ class UserController extends Controller
                 $response['status'] = 0;
             }
         } catch (\Exception $e) {
-            $response['msg'] = "Ha ocurrido un error " . $e->getMessage();
+            $response['msg'] = "Ha ocurrido un error: " . $e->getMessage();
             $response['status'] = 0;
         }
 
@@ -112,7 +112,7 @@ class UserController extends Controller
             }
 
         } catch (\Exception $e) {
-            $response['msg'] = "Ha ocurrido un error " . $e->getMessage();
+            $response['msg'] = "Ha ocurrido un error: " . $e->getMessage();
             $response['status'] = 0;
         }
 
@@ -129,32 +129,39 @@ class UserController extends Controller
         try {
             if ($user_id) {
                 $user = User::where('id', $user_id)->first();    
-                if ($req_user->workplace == "Directivo"){
-                    if($user->workplace == "Directivo" && $req_user->id != $user_id){
-                        $response['msg'] = "No tienes permisos para ver este usuario";
-                        $response['status'] = 0;
-                    } else{
-                        $response['msg'] = $this->employee_detail_response($user);
-                        $response['status'] = 1;
+                
+                if($user) {
+                    if ($req_user->workplace == "Directivo"){
+                        if($user->workplace == "Directivo" && $req_user->id != $user_id){
+                            $response['msg'] = "No tienes permisos para ver este usuario";
+                            $response['status'] = 0;
+                        } else{
+                            $response['msg'] = $this->employee_detail_response($user);
+                            $response['status'] = 1;
+                        }
                     }
-                }
-    
-                if ($req_user->workplace == "RRHH") {
-                    if($user->workplace == "Directivo" || $user->workplace == "RRHH" && $req_user->id != $user_id) {
-                        $response['msg'] = "No tienes permisos para ver este usuario";
-                        $response['status'] = 0;
-                    } else {
-                        $response['msg'] = $this->employee_detail_response($user);
-                        $response['status'] = 1;
+        
+                    if ($req_user->workplace == "RRHH") {
+                        if($user->workplace == "Directivo" || $user->workplace == "RRHH" && $req_user->id != $user_id) {
+                            $response['msg'] = "No tienes permisos para ver este usuario";
+                            $response['status'] = 0;
+                        } else {
+                            $response['msg'] = $this->employee_detail_response($user);
+                            $response['status'] = 1;
+                        }
                     }
+                } else {
+                    $response['msg'] = "El Usuario No Existe";
+                    $response['status'] = 0;
                 }
+               
             } else {
                 $response['msg'] = "Introduce el id del usuario";
                 $response['status'] = 0;
             }
 
         } catch (\Exception $e) {
-            $response['msg'] = "Ha ocurrido un error " . $e->getMessage();
+            $response['msg'] = "Ha ocurrido un error: " . $e->getMessage();
             $response['status'] = 0;
         }
 
@@ -168,7 +175,7 @@ class UserController extends Controller
             $response['msg'] = $request->user;
             $response['status'] = 1;
         } catch (\Exception $e) {
-            $response['msg'] = "Ha ocurrido un error " . $e->getMessage();
+            $response['msg'] = "Ha ocurrido un error: " . $e->getMessage();
             $response['status'] = 0;
         }
         return response()->json($response);
@@ -203,7 +210,7 @@ class UserController extends Controller
                 $response['status'] = 0;
             }
         } catch (\Exception $e) {
-            $response['msg'] = "Ha ocurrido un error " . $e->getMessage();
+            $response['msg'] = "Ha ocurrido un error: " . $e->getMessage();
             $response['status'] = 0;
         }
 
@@ -234,42 +241,48 @@ class UserController extends Controller
             if ($user_id) {
                 $user = User::where('id', $user_id)->first();
 
-                if ($req_user->workplace == "Directivo"){
-                    if($user->workplace == "Directivo" && $req_user->id != $user_id) {
-                        $response['msg'] = "No tienes permisos para modificar este usuario";
-                        $response['status'] = 0;
-                    } else {
-
-                        $this->checkModifyData($data, $user);
-
-                        if($validator->fails()){
-                            $response['msg'] = "Ha ocurrido un error " . $validator->errors()->first();
+                if($user) {
+                    if ($req_user->workplace == "Directivo"){
+                        if($user->workplace == "Directivo" && $req_user->id != $user_id) {
+                            $response['msg'] = "No tienes permisos para modificar este usuario";
                             $response['status'] = 0;
                         } else {
-                            $user->save();
-                            $response['msg'] = "Usuario modificado correctamente";
-                            $response['status'] = 1;
+    
+                            $this->checkModifyData($data, $user);
+    
+                            if($validator->fails()){
+                                $response['msg'] = "Ha ocurrido un error: " . $validator->errors()->first();
+                                $response['status'] = 0;
+                            } else {
+                                $user->save();
+                                $response['msg'] = "Usuario modificado correctamente";
+                                $response['status'] = 1;
+                            }
                         }
                     }
+    
+                    if ($req_user->workplace == "RRHH") {
+                        if($user->workplace == "Directivo" || $user->workplace == "RRHH" && $req_user->id != $user_id) {
+                            $response['msg'] = "No tienes permisos para modificar este usuario";
+                            $response['status'] = 0;
+                        } else {
+                            $this->checkModifyData($data, $user);
+    
+                            if($validator->fails()){
+                                $response['msg'] = "Ha ocurrido un error: " . $validator->errors()->first();
+                                $response['status'] = 0;
+                            } else {
+                                $user->save();
+                                $response['msg'] = "Usuario modificado correctamente";
+                                $response['status'] = 1;
+                            }
+                        }
+                    } 
+                } else {
+                    $response['msg'] = "El Usuario No Existe";
+                    $response['status'] = 0;
                 }
-
-                if ($req_user->workplace == "RRHH") {
-                    if($user->workplace == "Directivo" || $user->workplace == "RRHH" && $req_user->id != $user_id) {
-                        $response['msg'] = "No tienes permisos para modificar este usuario";
-                        $response['status'] = 0;
-                    } else {
-                        $this->checkModifyData($data, $user);
-
-                        if($validator->fails()){
-                            $response['msg'] = "Ha ocurrido un error " . $validator->errors()->first();
-                            $response['status'] = 0;
-                        } else {
-                            $user->save();
-                            $response['msg'] = "Usuario modificado correctamente";
-                            $response['status'] = 1;
-                        }
-                    }
-                } 
+               
             } else {
                 $response['msg'] = "Introduce el id del usuario";
                 $response['status'] = 0;
@@ -308,6 +321,8 @@ class UserController extends Controller
 
     /* Employees List Query Response*/
     private function employee_list_response($users){
+        $result_query = [];
+
         foreach ($users as $user) {
             $query_response['Name'] = $user->name;
             $query_response['Workplace'] = $user->workplace;
@@ -321,6 +336,8 @@ class UserController extends Controller
 
     /* Employee Detail Query Response */
     private function employee_detail_response($user){
+        $query_response = [];
+
         $query_response['Name'] = $user->name;
         $query_response['Email'] = $user->email;
         $query_response['Workplace'] = $user->workplace;
