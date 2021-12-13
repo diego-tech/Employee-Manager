@@ -20,7 +20,7 @@ class CheckUserProfile
         $response = ["status" => 1, "msg" => ""];
     
         $user = $request->user;
-
+        
         if(!$user){
             $response["msg"] = "Usuario no Existe";
             $response["status"] = 0;

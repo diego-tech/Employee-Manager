@@ -19,11 +19,11 @@ class UserController extends Controller
         
         $validator = Validator::make(json_decode($data, true),[
             'name' => 'required|max:255',
-            'email' => 'required|regex: /^([a-z0-9\+_\-]+)(\.[a-z0-9\+_\-]+)*@([a-z0-9\-]+\.)+[a-z]{2,6}$/ix|unique:users|max:255',
+            'email' => 'required|regex:/^([a-z0-9\+_\-]+)(\.[a-z0-9\+_\-]+)*@([a-z0-9\-]+\.)+[a-z]{2,6}$/ix|unique:users|max:255',
             'password' => 'required|regex:/(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[^A-Za-z0-9]).{6,}/',
             'workplace' => 'required|in:Directivo,RRHH,Empleado',
-            'salary' => 'require|max:255',
-            'biography' => 'require'
+            'salary' => 'required|max:255',
+            'biography' => 'required'
         ]);
         
         try {
@@ -59,15 +59,19 @@ class UserController extends Controller
 
         try {
             $user = User::where('email', $data->email)->first();
- 
+
             if ($user) {
                 $hash_check = Hash::check($data->password, $user->password);
 
-                if($hash_check){ 
-                    $user_token = Hash::make(now().$user->id.$user->name);
+                if($hash_check){
+                    $users_token = User::pluck('api_token')->toArray();
+
+                    do {
+                        $user_token = Hash::make(now().$user->id.$user->name);  
+                    } while (in_array($user_token, $users_token));
+
                     $user->api_token = $user_token;
                     $user->save();
-
                     $response['msg'] = "Token: " . $user_token;
                 } else {
                     $response['msg'] = "Ha ocurrido un error, contraseña introducida erronea";
@@ -185,7 +189,6 @@ class UserController extends Controller
                     
                     do {
                         $password = $this->randomPassword($characters, 6);
-                        print("Hla");
                     } while (!preg_match($regex, $password));
 
                     Mail::to($user->email)->send(new RetrievePassword("Recuperar Contraseña","Recuperar Contraseña", $password));
