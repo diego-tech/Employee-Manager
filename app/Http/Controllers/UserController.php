@@ -19,11 +19,11 @@ class UserController extends Controller
         
         $validator = Validator::make(json_decode($data, true),[
             'name' => 'required|max:255',
-            'email' => 'required|unique:users|max:255',
+            'email' => 'required|regex: /^([a-z0-9\+_\-]+)(\.[a-z0-9\+_\-]+)*@([a-z0-9\-]+\.)+[a-z]{2,6}$/ix|unique:users|max:255',
             'password' => 'required|regex:/(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[^A-Za-z0-9]).{6,}/',
             'workplace' => 'required|in:Directivo,RRHH,Empleado',
-            'salary' => 'required|max:255',
-            'biography' => 'required'
+            'salary' => 'require|max:255',
+            'biography' => 'require'
         ]);
         
         try {
@@ -181,9 +181,15 @@ class UserController extends Controller
 
                 if($user) {
                     $characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ!@#$%^&*()_+-=[]{};:,./?\|`~';
-                    $password = $this->randomPassword($characters, 6);
+                    $regex = '/(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[^A-Za-z0-9]).{6,}/';
+                    
+                    do {
+                        $password = $this->randomPassword($characters, 6);
+                        print("Hla");
+                    } while (!preg_match($regex, $password));
 
-                    //Mail::to($user->email)->send(new RetrievePassword("Recuperar Contraseña","Recuperar Contraseña", $password));
+                    Mail::to($user->email)->send(new RetrievePassword("Recuperar Contraseña","Recuperar Contraseña", $password));
+
                     $user->password = Hash::make($password);
                     $user->save();
 
