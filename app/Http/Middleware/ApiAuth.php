@@ -10,7 +10,8 @@ class ApiAuth
 {
     /**
      * Handle an incoming request.
-     *
+     * Check If User Is Login
+     * 
      * @param  \Illuminate\Http\Request  $request
      * @param  \Closure  $next
      * @return mixed

@@ -12,6 +12,12 @@ use Illuminate\Support\Facades\Validator;
 
 class UserController extends Controller
 {
+    /**
+     * User Register
+     * 
+     * @param \Illuminate\Http\Request $request
+     * @return response()->json($response)
+     */
     public function register(Request $request){
 
         $response = ["status" => 1, "msg" => ""];
@@ -52,6 +58,12 @@ class UserController extends Controller
         return response()->json($response);
     }
     
+    /**
+     * User Login
+     * 
+     * @param \Illuminate\Http\Request $request
+     * @return response()->json($response)
+     */
     public function login(Request $request){
         $response = ["status" => 1, "msg" => ""];
         
@@ -92,6 +104,12 @@ class UserController extends Controller
         return response()->json($response);
     }
 
+    /**
+     * List of Employees Depending on the Logged-In User
+     * 
+     * @param \Illuminate\Http\Request $request
+     * @return response()->json($response)
+    */
     public function employee_list(Request $request){
         $response = ["status" => 1, "msg" => ""];
 
@@ -122,6 +140,12 @@ class UserController extends Controller
         return response()->json($response);
     }
 
+    /**
+     * Employee Detail Depending on the Logged-In User
+     * 
+     * @param \Illuminate\Http\Request $request
+     * @return response()->json($response)
+    */
     public function employee_detail(Request $request){
         $response = ["status" => 1, "msg" => ""];
 
@@ -171,6 +195,12 @@ class UserController extends Controller
         return response()->json($response);
     }
 
+    /**
+     * View the Profile of the Logged-In User
+     * 
+     * @param \Illuminate\Http\Request $request
+     * @return response()->json($response)
+     */
     public function see_profile(Request $request){
         $response = ["status" => 1, "msg" => ""];
 
@@ -184,6 +214,12 @@ class UserController extends Controller
         return response()->json($response);
     }
  
+    /**
+     * Recovery User Password With Email
+     * 
+     * @param \Illuminate\Http\Request $request
+     * @return response()->json($response)
+     */
     public function retrieve_password(Request $request){
         $response = ["status" => 0, "msg" => ""];
 
@@ -221,6 +257,12 @@ class UserController extends Controller
         return response()->json($response);
     }
 
+    /**
+     * Modify User Data
+     * 
+     * @param \Illuminate\Http\Request $request
+     * @return response()->json($response)
+     */
     public function modify_data(Request $request){
         $response = ["status" => 1, "msg" => ""];
 
@@ -299,7 +341,13 @@ class UserController extends Controller
         return response()->json($response);
     }
 
-    /* Check If User Want Modify Data */
+    /**
+     * Check If User Want Modify Data
+     * 
+     * @param object $data
+     * @param object $user
+     * @return object $user
+     */
     private function checkModifyData($data, $user){
         if(isset($data->name))
             $user->name = $data->name;
@@ -322,7 +370,12 @@ class UserController extends Controller
         return $user;
     }
 
-    /* Employees List Query Response*/
+    /**
+     * Employees List Query Response
+     * 
+     * @param array $users
+     * @return array $result_query
+     */
     private function employee_list_response($users){
         $result_query = [];
 
@@ -337,7 +390,12 @@ class UserController extends Controller
         return $result_query;
     }
 
-    /* Employee Detail Query Response */
+    /**
+     * Employee Detail Query Response
+     * 
+     * @param object $user
+     * @return array $query_response
+     */
     private function employee_detail_response($user){
         $query_response = [];
 
@@ -350,7 +408,13 @@ class UserController extends Controller
         return $query_response;
     }
 
-    /* Generate Random Password */
+    /**
+     * Generate Random Password
+     * 
+     * @param string $char
+     * @param int $length
+     * @return string $combinationRandom
+     */
     function randomPassword($char, $length)
     {
         $combinationRandom = "";

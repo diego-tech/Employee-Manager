@@ -10,6 +10,7 @@ class CheckUserProfile
 {
     /**
      * Handle an incoming request.
+     * Check If User Has The Correct Permisions
      *
      * @param  \Illuminate\Http\Request  $request
      * @param  \Closure  $next

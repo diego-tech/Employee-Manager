@@ -12,6 +12,7 @@ class CheckTokenExpired
 {
     /**
      * Handle an incoming request.
+     * Check If Token Is Expired
      *
      * @param  \Illuminate\Http\Request  $request
      * @param  \Closure  $next
