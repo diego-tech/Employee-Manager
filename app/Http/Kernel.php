@@ -65,5 +65,6 @@ class Kernel extends HttpKernel
         'verified' => \Illuminate\Auth\Middleware\EnsureEmailIsVerified::class,
         'check_user_profile' => \App\Http\Middleware\CheckUserProfile::class,
         'api_auth' => \App\Http\Middleware\ApiAuth::class,
+        'check_token_expired' => \App\Http\Middleware\CheckTokenExpired::class
     ];
 }

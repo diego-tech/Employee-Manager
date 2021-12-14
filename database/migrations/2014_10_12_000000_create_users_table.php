@@ -24,6 +24,7 @@ class CreateUsersTable extends Migration
             $table->text('biography');
 
             $table->string('api_token')->unique()->nullable();
+            $table->string('update_token')->nullable();
             $table->timestamps();
         });
     }

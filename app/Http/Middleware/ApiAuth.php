@@ -26,7 +26,7 @@ class ApiAuth
             $user = User::where('api_token', $user_token)->first();
 
             if(!$user) {
-                $response['msg'] = "Api Key no válida";
+                $response['msg'] = "Api Key No Válida";
                 $response['status'] = 0;
             } else {
                 $request->user = $user;

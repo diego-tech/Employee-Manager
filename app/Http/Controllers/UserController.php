@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Mail\RetrievePassword;
 use App\Models\User;
+use DateTime;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
@@ -65,12 +66,14 @@ class UserController extends Controller
 
                 if($hash_check){
                     $users_token = User::pluck('api_token')->toArray();
+                    $update_token = new DateTime("now");
 
                     do {
                         $user_token = Hash::make(now().$user->id.$user->name);  
                     } while (in_array($user_token, $users_token));
 
                     $user->api_token = $user_token;
+                    $user->update_token = $update_token;
                     $user->save();
                     $response['msg'] = "Token: " . $user_token;
                 } else {

@@ -12,6 +12,6 @@
     
     <p><i>Le recomendamos que modifique su contraseña lo antes posible para evitar otra perdida.</i></p>
 
-    <span style="text-align:center">&copy; Diego Muñoz Herranz 2021</span>
+    <span>&copy; Diego Muñoz Herranz 2021</span>
 </body>
 </html>
