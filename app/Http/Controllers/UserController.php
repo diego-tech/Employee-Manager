@@ -296,7 +296,7 @@ class UserController extends Controller
                             $response['status'] = 0;
                         } else {
                             if(isset($data->password)){
-                                $response['msg'] = "No puedes modificar la contraseña de este usuario.";
+                                $response['msg'] = "No puedes modificar la contraseña";
                                 $response['status'] = 0;
                             } else { 
                                 $this->checkModifyData($data, $user);
@@ -319,7 +319,7 @@ class UserController extends Controller
                             $response['status'] = 0;
                         } else {
                             if(isset($data->password)){
-                                $response['msg'] = "No puedes modificar la contraseña de este usuario.";
+                                $response['msg'] = "No puedes modificar la contraseña";
                                 $response['status'] = 0;
                             } else {
                                 $this->checkModifyData($data, $user);
@@ -383,7 +383,7 @@ class UserController extends Controller
                         } else {
                             $user->save();
     
-                            $response['msg'] = "Contraseña Guardada Correctamente";
+                            $response['msg'] = "Contraseña Guardada Correctamente!!";
                             $response['status'] = 0;
                         }
                     } else {
@@ -412,7 +412,7 @@ class UserController extends Controller
      * @return object $user
      */
     private function checkModifyData($data, $user){
-        if(isset($data->name))
+        if(isset($data->name)) 
             $user->name = $data->name;
 
         if(isset($data->email))
