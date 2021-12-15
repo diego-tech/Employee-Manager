@@ -22,4 +22,5 @@ Route::middleware(['api_auth', 'check_token_expired', 'check_user_profile'])->gr
     Route::get('/see_profile', [UserController::class, 'see_profile'])->withoutMiddleware('check_user_profile');
     Route::post('/retrieve_password', [UserController::class, 'retrieve_password'])->withoutMiddleware(['api_auth', 'check_token_expired', 'check_user_profile']);
     Route::post('/modify_data', [UserController::class, 'modify_data']);
+    Route::post('/modify_password', [UserController::class, 'modify_password'])->withoutMiddleware('check_user_profile');
 });

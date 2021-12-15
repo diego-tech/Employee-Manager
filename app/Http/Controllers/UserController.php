@@ -276,11 +276,11 @@ class UserController extends Controller
 
         $validator = Validator::make(json_decode($data, true),[
             'name' => 'max:255',
-            'email' => 'unique:users|max:255',
+            'email' => 'regex:/^([a-z0-9\+_\-]+)(\.[a-z0-9\+_\-]+)*@([a-z0-9\-]+\.)+[a-z]{2,6}$/ix|unique:users|max:255',
             'password' => 'regex:/(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[^A-Za-z0-9]).{6,}/',
             'workplace' => 'in:Directivo,RRHH,Empleado',
             'salary' => 'max:255',
-            'biography' => 'mas:255'
+            'biography' => ''
         ]);
         
         $data = json_decode($data);
@@ -295,16 +295,20 @@ class UserController extends Controller
                             $response['msg'] = "No tienes permisos para modificar este usuario";
                             $response['status'] = 0;
                         } else {
-    
-                            $this->checkModifyData($data, $user);
-    
-                            if($validator->fails()){
-                                $response['msg'] = "Ha ocurrido un error: " . $validator->errors()->first();
+                            if(isset($data->password)){
+                                $response['msg'] = "No puedes modificar la contraseña de este usuario.";
                                 $response['status'] = 0;
-                            } else {
-                                $user->save();
-                                $response['msg'] = "Usuario modificado correctamente";
-                                $response['status'] = 1;
+                            } else { 
+                                $this->checkModifyData($data, $user);
+        
+                                if($validator->fails()){
+                                    $response['msg'] = "Ha ocurrido un error: " . $validator->errors()->first();
+                                    $response['status'] = 0;
+                                } else {
+                                    $user->save();
+                                    $response['msg'] = "Usuario modificado correctamente";
+                                    $response['status'] = 1;
+                                }
                             }
                         }
                     }
@@ -314,15 +318,20 @@ class UserController extends Controller
                             $response['msg'] = "No tienes permisos para modificar este usuario";
                             $response['status'] = 0;
                         } else {
-                            $this->checkModifyData($data, $user);
-    
-                            if($validator->fails()){
-                                $response['msg'] = "Ha ocurrido un error: " . $validator->errors()->first();
+                            if(isset($data->password)){
+                                $response['msg'] = "No puedes modificar la contraseña de este usuario.";
                                 $response['status'] = 0;
                             } else {
-                                $user->save();
-                                $response['msg'] = "Usuario modificado correctamente";
-                                $response['status'] = 1;
+                                $this->checkModifyData($data, $user);
+        
+                                if($validator->fails()){
+                                    $response['msg'] = "Ha ocurrido un error: " . $validator->errors()->first();
+                                    $response['status'] = 0;
+                                } else {
+                                    $user->save();
+                                    $response['msg'] = "Usuario modificado correctamente";
+                                    $response['status'] = 1;
+                                }
                             }
                         }
                     } 
@@ -345,6 +354,57 @@ class UserController extends Controller
     }
 
     /**
+     * Modify User Password
+     * 
+     * @param \Illuminate\Http\Request $request
+     * @return response()->json($response)
+     */
+    public function modify_password(Request $request){
+        $response = ["status" => 1, "msg" => ""];
+        
+        $user = $request->user;
+        $data = $request->getContent();
+
+        $validator = Validator::make(json_decode($data, true),[
+            'password' => 'regex:/(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[^A-Za-z0-9]).{6,}/',
+        ]);
+
+        $data = json_decode($data);
+
+        try {
+            if ($user) {
+                if(isset($data->password) && isset($data->repeat_password)){
+                    if($data->password == $data->repeat_password) {
+                        $user->password = Hash::make($data->password);
+    
+                        if($validator->fails()){
+                            $response['msg'] = "Ha ocurrido un error: " . $validator->errors()->first();
+                            $response['status'] = 0;
+                        } else {
+                            $user->save();
+    
+                            $response['msg'] = "Contraseña Guardada Correctamente";
+                            $response['status'] = 0;
+                        }
+                    } else {
+                        $response['msg'] = "Las contraseñas no coinciden.";
+                        $response['status'] = 0;
+                    }
+                } else {
+                    $response['msg'] = "Introduzca la Contraseña";
+                    $response['status'] = 0;
+                }
+            }
+        } catch (\Exception $e) {
+            $response['msg'] = "Ha ocurrido un error " . $e->getMessage();
+            $response['status'] = 0;
+        }
+
+
+        return response()->json($response);
+    }
+
+    /**
      * Check If User Want Modify Data
      * 
      * @param object $data
@@ -357,9 +417,6 @@ class UserController extends Controller
 
         if(isset($data->email))
             $user->email = $data->email;
-
-        if(isset($data->password))
-            $user->password = Hash::make($data->password);
 
         if(isset($data->workplace))
             $user->workplace = $data->workplace;
@@ -383,10 +440,10 @@ class UserController extends Controller
         $result_query = [];
 
         foreach ($users as $user) {
-            $query_response['Id'] = $user->id;
-            $query_response['Name'] = $user->name;
-            $query_response['Workplace'] = $user->workplace;
-            $query_response['Salary'] = $user->salary;
+            $query_response['id'] = $user->id;
+            $query_response['name'] = $user->name;
+            $query_response['workplace'] = $user->workplace;
+            $query_response['salary'] = $user->salary;
 
             $result_query[] = $query_response;
         }
@@ -403,12 +460,12 @@ class UserController extends Controller
     private function employee_detail_response($user){
         $query_response = [];
         
-        $query_response['Id'] = $user->id;
-        $query_response['Name'] = $user->name;
-        $query_response['Email'] = $user->email;
-        $query_response['Workplace'] = $user->workplace;
-        $query_response['Biography'] = $user->biography;
-        $query_response['Salary'] = $user->salary;
+        $query_response['id'] = $user->id;
+        $query_response['name'] = $user->name;
+        $query_response['email'] = $user->email;
+        $query_response['workplace'] = $user->workplace;
+        $query_response['biography'] = $user->biography;
+        $query_response['salary'] = $user->salary;
 
         return $query_response;
     }
