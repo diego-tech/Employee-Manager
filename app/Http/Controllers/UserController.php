@@ -37,18 +37,20 @@ class UserController extends Controller
             $data = json_decode($data);
             
             if($validator->fails()){
+                $response['status'] = 0;
                 $response['msg'] = "Ha ocurrido un error: " . $validator->errors()->first();
             } else {
                 $user = new User();
-
+                
                 $user->name = $data->name;
                 $user->email = $data->email;
                 $user->password = Hash::make($data->password);
                 $user->workplace = $data->workplace;
                 $user->salary = $data->salary;
                 $user->biography = $data->biography;
-
+                
                 $user->save();
+                $response['status'] = 1;
                 $response['msg'] = "Usuario guardado correctamente";
             }
         } catch (\Exception $e) {
@@ -381,6 +383,7 @@ class UserController extends Controller
         $result_query = [];
 
         foreach ($users as $user) {
+            $query_response['Id'] = $user->id;
             $query_response['Name'] = $user->name;
             $query_response['Workplace'] = $user->workplace;
             $query_response['Salary'] = $user->salary;
@@ -399,7 +402,8 @@ class UserController extends Controller
      */
     private function employee_detail_response($user){
         $query_response = [];
-
+        
+        $query_response['Id'] = $user->id;
         $query_response['Name'] = $user->name;
         $query_response['Email'] = $user->email;
         $query_response['Workplace'] = $user->workplace;

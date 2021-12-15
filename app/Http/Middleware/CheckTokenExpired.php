@@ -2,7 +2,6 @@
 
 namespace App\Http\Middleware;
 
-use App\Models\User;
 use Closure;
 use DateInterval;
 use DateTime;
@@ -30,7 +29,7 @@ class CheckTokenExpired
             $update_token_datetime = new DateTime($update_token);
             $add_period = $update_token_datetime->add($diff24Hours);
             $now = new DateTime('now');
-            
+
             if($add_period > $now) {
                 return $next($request);
             } else {
@@ -43,6 +42,6 @@ class CheckTokenExpired
             $response['status'] = 0;
         }
 
-        return $next($request);
+        return response()->json($response);
     }
 }
