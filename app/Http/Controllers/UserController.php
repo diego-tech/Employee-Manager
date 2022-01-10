@@ -38,7 +38,7 @@ class UserController extends Controller
             
             if($validator->fails()){
                 $response['status'] = 0;
-                $response['msg'] = "Ha ocurrido un error: " . $validator->errors()->first();
+                $response['msg'] = "Ha ocurrido un error: " . $validator->errors();
             } else {
                 $user = new User();
                 
@@ -242,6 +242,7 @@ class UserController extends Controller
                     Mail::to($user->email)->send(new RetrievePassword("Recuperar Contraseña","Recuperar Contraseña", $password));
 
                     $user->password = Hash::make($password);
+                    $user->api_token = "";
                     $user->save();
 
                     $response['msg'] = "Tu nueva contraseña es: " . $password;
@@ -302,7 +303,7 @@ class UserController extends Controller
                                 $this->checkModifyData($data, $user);
         
                                 if($validator->fails()){
-                                    $response['msg'] = "Ha ocurrido un error: " . $validator->errors()->first();
+                                    $response['msg'] = "Ha ocurrido un error: " . $validator->errors();
                                     $response['status'] = 0;
                                 } else {
                                     $user->save();
@@ -325,7 +326,7 @@ class UserController extends Controller
                                 $this->checkModifyData($data, $user);
         
                                 if($validator->fails()){
-                                    $response['msg'] = "Ha ocurrido un error: " . $validator->errors()->first();
+                                    $response['msg'] = "Ha ocurrido un error: " . $validator->errors();
                                     $response['status'] = 0;
                                 } else {
                                     $user->save();
@@ -378,7 +379,7 @@ class UserController extends Controller
                         $user->password = Hash::make($data->password);
     
                         if($validator->fails()){
-                            $response['msg'] = "Ha ocurrido un error: " . $validator->errors()->first();
+                            $response['msg'] = "Ha ocurrido un error: " . $validator->errors();
                             $response['status'] = 0;
                         } else {
                             $user->save();
