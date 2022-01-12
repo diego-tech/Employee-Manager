@@ -18,13 +18,14 @@ class UserController extends Controller
      * @param \Illuminate\Http\Request $request
      * @return response()->json($response)
      */
-    public function register(Request $request){
+    public function register(Request $request)
+    {
 
         $response = ["status" => 1, "msg" => ""];
 
         $data = $request->getContent();
-        
-        $validator = Validator::make(json_decode($data, true),[
+
+        $validator = Validator::make(json_decode($data, true), [
             'name' => 'required|max:255',
             'email' => 'required|regex:/^([a-z0-9\+_\-]+)(\.[a-z0-9\+_\-]+)*@([a-z0-9\-]+\.)+[a-z]{2,6}$/ix|unique:users|max:255',
             'password' => 'required|regex:/(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[^A-Za-z0-9]).{6,}/',
@@ -32,43 +33,44 @@ class UserController extends Controller
             'salary' => 'required|max:255',
             'biography' => 'required'
         ]);
-        
+
         try {
             $data = json_decode($data);
-            
-            if($validator->fails()){
+
+            if ($validator->fails()) {
                 $response['status'] = 0;
                 $response['msg'] = "Ha ocurrido un error: " . $validator->errors();
             } else {
                 $user = new User();
-                
+
                 $user->name = $data->name;
                 $user->email = $data->email;
                 $user->password = Hash::make($data->password);
                 $user->workplace = $data->workplace;
                 $user->salary = $data->salary;
                 $user->biography = $data->biography;
-                
+
                 $user->save();
                 $response['status'] = 1;
                 $response['msg'] = "Usuario guardado correctamente";
             }
         } catch (\Exception $e) {
-            $response['msg'] = "Ha ocurrido un error: " . $e->getMessage();
             $response['status'] = 0;
+            $response['msg'] = (env('APP_DEBUG') == "true" ? $e->getMessage() : $this->error);
         }
         return response()->json($response);
     }
-    
+
     /**
      * User Login
      * 
      * @param \Illuminate\Http\Request $request
      * @return response()->json($response)
      */
-    public function login(Request $request){
+    public function login(Request $request)
+    {
         $response = ["status" => 1, "msg" => ""];
-        
+
         $data = $request->getContent();
         $data = json_decode($data);
 
@@ -78,12 +80,12 @@ class UserController extends Controller
             if ($user) {
                 $hash_check = Hash::check($data->password, $user->password);
 
-                if($hash_check){
+                if ($hash_check) {
                     $users_token = User::pluck('api_token')->toArray();
                     $update_token = new DateTime("now");
 
                     do {
-                        $user_token = Hash::make(now().$user->id.$user->name);  
+                        $user_token = Hash::make(now() . $user->id . $user->name);
                     } while (in_array($user_token, $users_token));
 
                     $user->api_token = $user_token;
@@ -99,7 +101,7 @@ class UserController extends Controller
                 $response['status'] = 0;
             }
         } catch (\Exception $e) {
-            $response['msg'] = "Ha ocurrido un error: " . $e->getMessage();
+            $response['msg'] = (env('APP_DEBUG') == "true" ? $e->getMessage() : $this->error);
             $response['status'] = 0;
         }
 
@@ -111,31 +113,31 @@ class UserController extends Controller
      * 
      * @param \Illuminate\Http\Request $request
      * @return response()->json($response)
-    */
-    public function employee_list(Request $request){
+     */
+    public function employee_list(Request $request)
+    {
         $response = ["status" => 1, "msg" => ""];
 
         $req_user = $request->user;
 
         try {
-            if ($req_user->workplace == "Directivo"){
+            if ($req_user->workplace == "Directivo") {
                 $users = User::where('workplace', 'Empleado')
                     ->orWhere('workplace', 'RRHH')
                     ->get();
-                
+
                 $response['msg'] = $this->employee_list_response($users);
                 $response['status'] = 1;
             }
 
             if ($req_user->workplace == "RRHH") {
                 $users = User::where('workplace', 'Empleado')->get();
-                    
+
                 $response['msg'] = $this->employee_list_response($users);
                 $response['status'] = 1;
             }
-
         } catch (\Exception $e) {
-            $response['msg'] = "Ha ocurrido un error: " . $e->getMessage();
+            $response['msg'] = (env('APP_DEBUG') == "true" ? $e->getMessage() : $this->error);
             $response['status'] = 0;
         }
 
@@ -147,8 +149,9 @@ class UserController extends Controller
      * 
      * @param \Illuminate\Http\Request $request
      * @return response()->json($response)
-    */
-    public function employee_detail(Request $request){
+     */
+    public function employee_detail(Request $request)
+    {
         $response = ["status" => 1, "msg" => ""];
 
         $req_user = $request->user;
@@ -157,21 +160,21 @@ class UserController extends Controller
 
         try {
             if ($user_id) {
-                $user = User::where('id', $user_id)->first();    
-                
-                if($user) {
-                    if ($req_user->workplace == "Directivo"){
-                        if($user->workplace == "Directivo" && $req_user->id != $user_id){
+                $user = User::where('id', $user_id)->first();
+
+                if ($user) {
+                    if ($req_user->workplace == "Directivo") {
+                        if ($user->workplace == "Directivo" && $req_user->id != $user_id) {
                             $response['msg'] = "No tienes permisos para ver este usuario";
                             $response['status'] = 0;
-                        } else{
+                        } else {
                             $response['msg'] = $this->employee_detail_response($user);
                             $response['status'] = 1;
                         }
                     }
-        
+
                     if ($req_user->workplace == "RRHH") {
-                        if($user->workplace == "Directivo" || $user->workplace == "RRHH" && $req_user->id != $user_id) {
+                        if ($user->workplace == "Directivo" || $user->workplace == "RRHH" && $req_user->id != $user_id) {
                             $response['msg'] = "No tienes permisos para ver este usuario";
                             $response['status'] = 0;
                         } else {
@@ -183,14 +186,12 @@ class UserController extends Controller
                     $response['msg'] = "El Usuario No Existe";
                     $response['status'] = 0;
                 }
-               
             } else {
                 $response['msg'] = "Introduce el id del usuario";
                 $response['status'] = 0;
             }
-
         } catch (\Exception $e) {
-            $response['msg'] = "Ha ocurrido un error: " . $e->getMessage();
+            $response['msg'] = (env('APP_DEBUG') == "true" ? $e->getMessage() : $this->error);
             $response['status'] = 0;
         }
 
@@ -203,57 +204,59 @@ class UserController extends Controller
      * @param \Illuminate\Http\Request $request
      * @return response()->json($response)
      */
-    public function see_profile(Request $request){
+    public function see_profile(Request $request)
+    {
         $response = ["status" => 1, "msg" => ""];
 
         try {
             $response['msg'] = $request->user;
             $response['status'] = 1;
         } catch (\Exception $e) {
-            $response['msg'] = "Ha ocurrido un error: " . $e->getMessage();
+            $response['msg'] = (env('APP_DEBUG') == "true" ? $e->getMessage() : $this->error);
             $response['status'] = 0;
         }
         return response()->json($response);
     }
- 
+
     /**
      * Recovery User Password With Email
      * 
      * @param \Illuminate\Http\Request $request
      * @return response()->json($response)
      */
-    public function retrieve_password(Request $request){
+    public function retrieve_password(Request $request)
+    {
         $response = ["status" => 0, "msg" => ""];
 
         $email = $request->email;
 
         try {
-            if ($request->has('email')){
+            if ($request->has('email')) {
                 $user = User::where('email', $email)->first();
 
-                if($user) {
+                if ($user) {
                     $characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ!@#$%^&*()_+-=[]{};:,./?\|`~';
                     $regex = '/(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[^A-Za-z0-9]).{6,}/';
-                    
+
                     do {
                         $password = $this->randomPassword($characters, 6);
                     } while (!preg_match($regex, $password));
 
-                    Mail::to($user->email)->send(new RetrievePassword("Recuperar Contraseña","Recuperar Contraseña", $password));
+                    Mail::to($user->email)->send(new RetrievePassword("Recuperar Contraseña", "Recuperar Contraseña", $password));
 
                     $user->password = Hash::make($password);
                     $user->api_token = "";
                     $user->save();
 
                     $response['msg'] = "Tu nueva contraseña es: " . $password;
-                    $response['status'] = 1;                
+                    $response['status'] = 1;
                 }
             } else {
                 $response['msg'] = "Introduzca el email";
                 $response['status'] = 0;
             }
         } catch (\Exception $e) {
-            $response['msg'] = "Ha ocurrido un error: " . $e->getMessage();
+            $response['msg'] = (env('APP_DEBUG') == "true" ? $e->getMessage() : $this->error);
             $response['status'] = 0;
         }
 
@@ -267,7 +270,8 @@ class UserController extends Controller
      * @param \Illuminate\Http\Request $request
      * @return response()->json($response)
      */
-    public function modify_data(Request $request){
+    public function modify_data(Request $request)
+    {
         $response = ["status" => 1, "msg" => ""];
 
         $req_user = $request->user;
@@ -275,7 +279,7 @@ class UserController extends Controller
 
         $data = $request->getContent();
 
-        $validator = Validator::make(json_decode($data, true),[
+        $validator = Validator::make(json_decode($data, true), [
             'name' => 'max:255',
             'email' => 'regex:/^([a-z0-9\+_\-]+)(\.[a-z0-9\+_\-]+)*@([a-z0-9\-]+\.)+[a-z]{2,6}$/ix|unique:users|max:255',
             'password' => 'regex:/(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[^A-Za-z0-9]).{6,}/',
@@ -283,26 +287,26 @@ class UserController extends Controller
             'salary' => 'max:255',
             'biography' => ''
         ]);
-        
+
         $data = json_decode($data);
 
         try {
             if ($user_id) {
                 $user = User::where('id', $user_id)->first();
 
-                if($user) {
-                    if ($req_user->workplace == "Directivo"){
-                        if($user->workplace == "Directivo" && $req_user->id != $user_id) {
+                if ($user) {
+                    if ($req_user->workplace == "Directivo") {
+                        if ($user->workplace == "Directivo" && $req_user->id != $user_id) {
                             $response['msg'] = "No tienes permisos para modificar este usuario";
                             $response['status'] = 0;
                         } else {
-                            if(isset($data->password)){
+                            if (isset($data->password)) {
                                 $response['msg'] = "No puedes modificar la contraseña";
                                 $response['status'] = 0;
-                            } else { 
+                            } else {
                                 $this->checkModifyData($data, $user);
-        
-                                if($validator->fails()){
+
+                                if ($validator->fails()) {
                                     $response['msg'] = "Ha ocurrido un error: " . $validator->errors();
                                     $response['status'] = 0;
                                 } else {
@@ -313,19 +317,19 @@ class UserController extends Controller
                             }
                         }
                     }
-    
+
                     if ($req_user->workplace == "RRHH") {
-                        if($user->workplace == "Directivo" || $user->workplace == "RRHH" && $req_user->id != $user_id) {
+                        if ($user->workplace == "Directivo" || $user->workplace == "RRHH" && $req_user->id != $user_id) {
                             $response['msg'] = "No tienes permisos para modificar este usuario";
                             $response['status'] = 0;
                         } else {
-                            if(isset($data->password)){
+                            if (isset($data->password)) {
                                 $response['msg'] = "No puedes modificar la contraseña";
                                 $response['status'] = 0;
                             } else {
                                 $this->checkModifyData($data, $user);
-        
-                                if($validator->fails()){
+
+                                if ($validator->fails()) {
                                     $response['msg'] = "Ha ocurrido un error: " . $validator->errors();
                                     $response['status'] = 0;
                                 } else {
@@ -335,19 +339,17 @@ class UserController extends Controller
                                 }
                             }
                         }
-                    } 
+                    }
                 } else {
                     $response['msg'] = "El Usuario No Existe";
                     $response['status'] = 0;
                 }
-               
             } else {
                 $response['msg'] = "Introduce el id del usuario";
                 $response['status'] = 0;
             }
-
         } catch (\Exception $e) {
-            $response['msg'] = "Ha ocurrido un error " . $e->getMessage();
+            $response['msg'] = (env('APP_DEBUG') == "true" ? $e->getMessage() : $this->error);
             $response['status'] = 0;
         }
 
@@ -360,13 +362,14 @@ class UserController extends Controller
      * @param \Illuminate\Http\Request $request
      * @return response()->json($response)
      */
-    public function modify_password(Request $request){
+    public function modify_password(Request $request)
+    {
         $response = ["status" => 1, "msg" => ""];
-        
+
         $user = $request->user;
         $data = $request->getContent();
 
-        $validator = Validator::make(json_decode($data, true),[
+        $validator = Validator::make(json_decode($data, true), [
             'password' => 'regex:/(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[^A-Za-z0-9]).{6,}/',
         ]);
 
@@ -374,16 +377,16 @@ class UserController extends Controller
 
         try {
             if ($user) {
-                if(isset($data->password) && isset($data->repeat_password)){
-                    if($data->password == $data->repeat_password) {
+                if (isset($data->password) && isset($data->repeat_password)) {
+                    if ($data->password == $data->repeat_password) {
                         $user->password = Hash::make($data->password);
-    
-                        if($validator->fails()){
+
+                        if ($validator->fails()) {
                             $response['msg'] = "Ha ocurrido un error: " . $validator->errors();
                             $response['status'] = 0;
                         } else {
                             $user->save();
-    
+
                             $response['msg'] = "Contraseña Guardada Correctamente!!";
                             $response['status'] = 0;
                         }
@@ -397,7 +400,7 @@ class UserController extends Controller
                 }
             }
         } catch (\Exception $e) {
-            $response['msg'] = "Ha ocurrido un error " . $e->getMessage();
+            $response['msg'] = (env('APP_DEBUG') == "true" ? $e->getMessage() : $this->error);
             $response['status'] = 0;
         }
 
@@ -412,20 +415,21 @@ class UserController extends Controller
      * @param object $user
      * @return object $user
      */
-    private function checkModifyData($data, $user){
-        if(isset($data->name)) 
+    private function checkModifyData($data, $user)
+    {
+        if (isset($data->name))
             $user->name = $data->name;
 
-        if(isset($data->email))
+        if (isset($data->email))
             $user->email = $data->email;
 
-        if(isset($data->workplace))
+        if (isset($data->workplace))
             $user->workplace = $data->workplace;
 
-        if(isset($data->salary))
+        if (isset($data->salary))
             $user->salary = $data->salary;
-            
-        if(isset($data->biography))
+
+        if (isset($data->biography))
             $user->biography = $data->biography;
 
         return $user;
@@ -437,7 +441,8 @@ class UserController extends Controller
      * @param array $users
      * @return array $result_query
      */
-    private function employee_list_response($users){
+    private function employee_list_response($users)
+    {
         $result_query = [];
 
         foreach ($users as $user) {
@@ -458,9 +463,10 @@ class UserController extends Controller
      * @param object $user
      * @return array $query_response
      */
-    private function employee_detail_response($user){
+    private function employee_detail_response($user)
+    {
         $query_response = [];
-        
+
         $query_response['id'] = $user->id;
         $query_response['name'] = $user->name;
         $query_response['email'] = $user->email;
@@ -481,11 +487,11 @@ class UserController extends Controller
     function randomPassword($char, $length)
     {
         $combinationRandom = "";
-        
+
         for ($i = 0; $i < $length; $i++) {
             $combinationRandom .= substr(str_shuffle($char), 0, $length);
         }
-    
+
         return $combinationRandom;
-    }    
+    }
 }
