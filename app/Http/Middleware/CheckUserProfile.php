@@ -18,18 +18,18 @@ class CheckUserProfile
      */
     public function handle(Request $request, Closure $next)
     {
-        $response = ["status" => 1, "msg" => ""];
+        $response = ["status" => 1, "data" => ""];
     
         $user = $request->user;
         
         if(!$user){
-            $response["msg"] = "Usuario no Existe";
+            $response["data"] = "Usuario no Existe";
             $response["status"] = 0;
         } else {
             if($user->workplace == 'RRHH' || $user->workplace == 'Directivo'){
                 return $next($request);
             } else {
-                $response["msg"] = "No tienes los permisos suficentes";
+                $response["data"] = "No tienes los permisos suficentes";
                 $response["status"] = 0;
             }
         }
