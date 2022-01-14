@@ -20,8 +20,7 @@ class UserController extends Controller
      */
     public function register(Request $request)
     {
-
-        $response = ["status" => 1, "data" => ""];
+        $response = ["status" => 1, "data" => "", "msg" => ""];
 
         $data = $request->getContent();
 
@@ -39,7 +38,7 @@ class UserController extends Controller
 
             if ($validator->fails()) {
                 $response['status'] = 0;
-                $response['data'] = "Ha ocurrido un error: " . $validator->errors();
+                $response['msg'] = "Ha ocurrido un error: " . $validator->errors();
             } else {
                 $user = new User();
 
@@ -52,11 +51,11 @@ class UserController extends Controller
 
                 $user->save();
                 $response['status'] = 1;
-                $response['data'] = "Usuario guardado correctamente";
+                $response['msg'] = "Usuario guardado correctamente";
             }
         } catch (\Exception $e) {
             $response['status'] = 0;
-            $response['data'] = (env('APP_DEBUG') == "true" ? $e->getMessage() : $this->error);
+            $response['msg'] = (env('APP_DEBUG') == "true" ? $e->getMessage() : $this->error);
         }
         return response()->json($response);
     }
@@ -69,7 +68,7 @@ class UserController extends Controller
      */
     public function login(Request $request)
     {
-        $response = ["status" => 1, "data" => ""];
+        $response = ["status" => 1, "data" => "", "msg" => ""];
 
         $data = $request->getContent();
         $data = json_decode($data);
@@ -93,15 +92,15 @@ class UserController extends Controller
                     $user->save();
                     $response['data'] = $user_token;
                 } else {
-                    $response['data'] = "Ha ocurrido un error, contraseña introducida erronea";
+                    $response['msg'] = "Ha ocurrido un error, contraseña introducida erronea";
                     $response['status'] = 0;
                 }
             } else {
-                $response['data'] = "Este usuario no está registrado";
+                $response['msg'] = "Este usuario no está registrado";
                 $response['status'] = 0;
             }
         } catch (\Exception $e) {
-            $response['data'] = (env('APP_DEBUG') == "true" ? $e->getMessage() : $this->error);
+            $response['msg'] = (env('APP_DEBUG') == "true" ? $e->getMessage() : $this->error);
             $response['status'] = 0;
         }
 
@@ -116,7 +115,7 @@ class UserController extends Controller
      */
     public function employee_list(Request $request)
     {
-        $response = ["status" => 1, "data" => ""];
+        $response = ["status" => 1, "data" => "", "msg" => ""];
 
         $req_user = $request->user;
 
@@ -137,7 +136,7 @@ class UserController extends Controller
                 $response['status'] = 1;
             }
         } catch (\Exception $e) {
-            $response['data'] = (env('APP_DEBUG') == "true" ? $e->getMessage() : $this->error);
+            $response['msg'] = (env('APP_DEBUG') == "true" ? $e->getMessage() : $this->error);
             $response['status'] = 0;
         }
 
@@ -152,7 +151,7 @@ class UserController extends Controller
      */
     public function employee_detail(Request $request)
     {
-        $response = ["status" => 1, "data" => ""];
+        $response = ["status" => 1, "data" => "", "msg" => ""];
 
         $req_user = $request->user;
 
@@ -165,7 +164,7 @@ class UserController extends Controller
                 if ($user) {
                     if ($req_user->workplace == "Directivo") {
                         if ($user->workplace == "Directivo" && $req_user->id != $user_id) {
-                            $response['data'] = "No tienes permisos para ver este usuario";
+                            $response['msg'] = "No tienes permisos para ver este usuario";
                             $response['status'] = 0;
                         } else {
                             $response['data'] = $this->employee_detail_response($user);
@@ -175,7 +174,7 @@ class UserController extends Controller
 
                     if ($req_user->workplace == "RRHH") {
                         if ($user->workplace == "Directivo" || $user->workplace == "RRHH" && $req_user->id != $user_id) {
-                            $response['data'] = "No tienes permisos para ver este usuario";
+                            $response['msg'] = "No tienes permisos para ver este usuario";
                             $response['status'] = 0;
                         } else {
                             $response['data'] = $this->employee_detail_response($user);
@@ -183,15 +182,15 @@ class UserController extends Controller
                         }
                     }
                 } else {
-                    $response['data'] = "El Usuario No Existe";
+                    $response['msg'] = "El Usuario No Existe";
                     $response['status'] = 0;
                 }
             } else {
-                $response['data'] = "Introduce el id del usuario";
+                $response['msg'] = "Introduce el id del usuario";
                 $response['status'] = 0;
             }
         } catch (\Exception $e) {
-            $response['data'] = (env('APP_DEBUG') == "true" ? $e->getMessage() : $this->error);
+            $response['msg'] = (env('APP_DEBUG') == "true" ? $e->getMessage() : $this->error);
             $response['status'] = 0;
         }
 
@@ -211,8 +210,9 @@ class UserController extends Controller
         try {
             $response['data'] = $request->user;
             $response['status'] = 1;
+            $response['msg'] = "Datos del Usuario";
         } catch (\Exception $e) {
-            $response['data'] = (env('APP_DEBUG') == "true" ? $e->getMessage() : $this->error);
+            $response['msg'] = (env('APP_DEBUG') == "true" ? $e->getMessage() : $this->error);
             $response['status'] = 0;
         }
         return response()->json($response);
@@ -226,7 +226,7 @@ class UserController extends Controller
      */
     public function retrieve_password(Request $request)
     {
-        $response = ["status" => 0, "data" => ""];
+        $response = ["status" => 1, "data" => "", "msg" => ""];
 
         $email = $request->email;
 
@@ -248,15 +248,15 @@ class UserController extends Controller
                     $user->api_token = "";
                     $user->save();
 
-                    $response['data'] = "Tu nueva contraseña es: " . $password;
+                    $response['msg'] = "Contraseña enviada a Email " . $user->email;
                     $response['status'] = 1;
                 }
             } else {
-                $response['data'] = "Introduzca el email";
+                $response['msg'] = "Introduzca el email";
                 $response['status'] = 0;
             }
         } catch (\Exception $e) {
-            $response['data'] = (env('APP_DEBUG') == "true" ? $e->getMessage() : $this->error);
+            $response['msg'] = (env('APP_DEBUG') == "true" ? $e->getMessage() : $this->error);
             $response['status'] = 0;
         }
 
@@ -272,7 +272,7 @@ class UserController extends Controller
      */
     public function modify_data(Request $request)
     {
-        $response = ["status" => 1, "data" => ""];
+        $response = ["status" => 1, "data" => "", "msg" => "msg"];
 
         $req_user = $request->user;
         $user_id = $request->user_id;
@@ -297,21 +297,21 @@ class UserController extends Controller
                 if ($user) {
                     if ($req_user->workplace == "Directivo") {
                         if ($user->workplace == "Directivo" && $req_user->id != $user_id) {
-                            $response['data'] = "No tienes permisos para modificar este usuario";
+                            $response['msg'] = "No tienes permisos para modificar este usuario";
                             $response['status'] = 0;
                         } else {
                             if (isset($data->password)) {
-                                $response['data'] = "No puedes modificar la contraseña";
+                                $response['msg'] = "No puedes modificar la contraseña";
                                 $response['status'] = 0;
                             } else {
                                 $this->checkModifyData($data, $user);
 
                                 if ($validator->fails()) {
-                                    $response['data'] = "Ha ocurrido un error: " . $validator->errors();
+                                    $response['msg'] = "Ha ocurrido un error: " . $validator->errors();
                                     $response['status'] = 0;
                                 } else {
                                     $user->save();
-                                    $response['data'] = "Usuario modificado correctamente";
+                                    $response['msg'] = "Usuario modificado correctamente";
                                     $response['status'] = 1;
                                 }
                             }
@@ -320,36 +320,36 @@ class UserController extends Controller
 
                     if ($req_user->workplace == "RRHH") {
                         if ($user->workplace == "Directivo" || $user->workplace == "RRHH" && $req_user->id != $user_id) {
-                            $response['data'] = "No tienes permisos para modificar este usuario";
+                            $response['msg'] = "No tienes permisos para modificar este usuario";
                             $response['status'] = 0;
                         } else {
                             if (isset($data->password)) {
-                                $response['data'] = "No puedes modificar la contraseña";
+                                $response['msg'] = "No puedes modificar la contraseña";
                                 $response['status'] = 0;
                             } else {
                                 $this->checkModifyData($data, $user);
 
                                 if ($validator->fails()) {
-                                    $response['data'] = "Ha ocurrido un error: " . $validator->errors();
+                                    $response['msg'] = "Ha ocurrido un error: " . $validator->errors();
                                     $response['status'] = 0;
                                 } else {
                                     $user->save();
-                                    $response['data'] = "Usuario modificado correctamente";
+                                    $response['msg'] = "Usuario modificado correctamente";
                                     $response['status'] = 1;
                                 }
                             }
                         }
                     }
                 } else {
-                    $response['data'] = "El Usuario No Existe";
+                    $response['msg'] = "El Usuario No Existe";
                     $response['status'] = 0;
                 }
             } else {
-                $response['data'] = "Introduce el id del usuario";
+                $response['msg'] = "Introduce el id del usuario";
                 $response['status'] = 0;
             }
         } catch (\Exception $e) {
-            $response['data'] = (env('APP_DEBUG') == "true" ? $e->getMessage() : $this->error);
+            $response['msg'] = (env('APP_DEBUG') == "true" ? $e->getMessage() : $this->error);
             $response['status'] = 0;
         }
 
@@ -364,7 +364,7 @@ class UserController extends Controller
      */
     public function modify_password(Request $request)
     {
-        $response = ["status" => 1, "data" => ""];
+        $response = ["status" => 1, "data" => "", "msg" => ""];
 
         $user = $request->user;
         $data = $request->getContent();
@@ -382,25 +382,25 @@ class UserController extends Controller
                         $user->password = Hash::make($data->password);
 
                         if ($validator->fails()) {
-                            $response['data'] = "Ha ocurrido un error: " . $validator->errors();
+                            $response['msg'] = "Ha ocurrido un error: " . $validator->errors();
                             $response['status'] = 0;
                         } else {
                             $user->save();
 
-                            $response['data'] = "Contraseña Guardada Correctamente!!";
+                            $response['msg'] = "Contraseña Guardada Correctamente!!";
                             $response['status'] = 0;
                         }
                     } else {
-                        $response['data'] = "Las contraseñas no coinciden.";
+                        $response['msg'] = "Las contraseñas no coinciden.";
                         $response['status'] = 0;
                     }
                 } else {
-                    $response['data'] = "Introduzca la Contraseña";
+                    $response['msg'] = "Introduzca la Contraseña";
                     $response['status'] = 0;
                 }
             }
         } catch (\Exception $e) {
-            $response['data'] = (env('APP_DEBUG') == "true" ? $e->getMessage() : $this->error);
+            $response['msg'] = (env('APP_DEBUG') == "true" ? $e->getMessage() : $this->error);
             $response['status'] = 0;
         }
 
