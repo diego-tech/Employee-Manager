@@ -91,7 +91,7 @@ class UserController extends Controller
                     $user->api_token = $user_token;
                     $user->update_token = $update_token;
                     $user->save();
-                    $response['msg'] = "Token: " . $user_token;
+                    $response['msg'] = $user_token;
                 } else {
                     $response['msg'] = "Ha ocurrido un error, contraseña introducida erronea";
                     $response['status'] = 0;
