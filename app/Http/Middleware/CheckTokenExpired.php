@@ -19,7 +19,7 @@ class CheckTokenExpired
      */
     public function handle(Request $request, Closure $next)
     {
-        $response = ["status" => 1, "data" => ""];
+        $response = ["status" => 1, "data" => []];
 
         $user = $request->user;
 
@@ -33,12 +33,12 @@ class CheckTokenExpired
             if($add_period > $now) {
                 return $next($request);
             } else {
-                $response['data'] = "Sesión Expirada Vuelva a Logearse";
+                $response['data']['msg'] = "Sesión Expirada Vuelva a Logearse";
                 $response['status'] = 0;
             }
         
         } else {
-            $response['data'] = "Api Key No Válida";
+            $response['data']['msg'] = "Api Key No Válida";
             $response['status'] = 0;
         }
 

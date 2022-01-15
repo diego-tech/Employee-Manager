@@ -18,7 +18,7 @@ class ApiAuth
      */
     public function handle(Request $request, Closure $next)
     {
-        $response = ["status" => 1, "data" => ""];
+        $response = ["status" => 1, "data" => []];
 
         $headers = $request->header('Authorization');
 
@@ -27,14 +27,14 @@ class ApiAuth
             $user = User::where('api_token', $user_token)->first();
 
             if(!$user) {
-                $response['data'] = "Api Key No Válida";
+                $response['data']['msg'] = "Api Key No Válida";
                 $response['status'] = 0;
             } else {
                 $request->user = $user;
                 return $next($request);
             }
         } else {
-            $response['data'] = "Api Key no introducida";
+            $response['data']['msg'] = "Api Key no introducida";
             $response['status'] = 0;
         }
 
