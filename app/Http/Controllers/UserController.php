@@ -88,9 +88,11 @@ class UserController extends Controller
                     } while (in_array($user_token, $users_token));
 
                     $user->api_token = $user_token;
-                    $user->update_token = $update_token;
+                    $user->update_token = $update_token->format('Y-m-d H:i:s');
                     $user->save();
-                    $response['data']['token'] = $user_token;
+
+                    $response['data'] = $user;
+                    $response['data']['msg'] = "Usuario Logeado Correctamente";
                 } else {
                     $response['data']['msg'] = "Ha ocurrido un error, contraseña introducida erronea";
                     $response['status'] = 0;
