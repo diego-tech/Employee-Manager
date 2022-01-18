@@ -409,6 +409,25 @@ class UserController extends Controller
         return response()->json($response);
     }
 
+    public function logout(Request $request) {
+        $response = ["status" => 1, "data" => []];
+
+        try {
+            $user = $request->user;
+
+            $user->api_token = "";
+            $user->save();
+
+            $response['data']['msg'] = "Usuario Deslogeado";
+            $response['status'] = 1;
+        } catch (\Exception $e) {
+            $response['data']['msg'] = (env('APP_DEBUG') == "true" ? $e->getMessage() : $this->error);
+            $response['status'] = 0;
+        }
+
+        return response()->json($response);
+    }
+
     /**
      * Check If User Want Modify Data
      * 
