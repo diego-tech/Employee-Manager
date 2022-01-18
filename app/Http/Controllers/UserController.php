@@ -249,8 +249,11 @@ class UserController extends Controller
                     $user->api_token = "";
                     $user->save();
 
-                    $response['data'] = "Contraseña enviada a Email " . $user->email;
+                    $response['data']['msg'] = "Contraseña enviada a Email: " . $user->email;
                     $response['status'] = 1;
+                } else {
+                    $response['data']['msg'] = "Este Usuario No Está Registrado";
+                    $response['status'] = 0;
                 }
             } else {
                 $response['data']['msg'] = "Introduzca el email";
@@ -260,7 +263,6 @@ class UserController extends Controller
             $response['data']['msg'] = (env('APP_DEBUG') == "true" ? $e->getMessage() : $this->error);
             $response['status'] = 0;
         }
-
 
         return response()->json($response);
     }
