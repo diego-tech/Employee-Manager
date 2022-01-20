@@ -388,8 +388,8 @@ class UserController extends Controller
                             $response['data']['msg'] = "Ha ocurrido un error: " . $validator->errors();
                             $response['status'] = 0;
                         } else {
+                            $user->api_token = "";
                             $user->save();
-
                             $response['data']['msg'] = "Contraseña Guardada Correctamente!!";
                             $response['status'] = 0;
                         }
@@ -406,7 +406,6 @@ class UserController extends Controller
             $response['data']['msg'] = (env('APP_DEBUG') == "true" ? $e->getMessage() : $this->error);
             $response['status'] = 0;
         }
-
 
         return response()->json($response);
     }
