@@ -416,7 +416,7 @@ class UserController extends Controller
         try {
             $user = $request->user;
 
-            $user->api_token = "";
+            $user->api_token = NULL;
             $user->save();
 
             $response['data']['msg'] = "Usuario Deslogeado";
