@@ -20,7 +20,7 @@ class UserController extends Controller
      */
     public function register(Request $request)
     {
-        $response = ["status" => 1, "data" => []];
+        $response = ["status" => 1, "data" => [], "msg" => ""];
 
         $data = $request->getContent();
 
@@ -38,7 +38,7 @@ class UserController extends Controller
 
             if ($validator->fails()) {
                 $response['status'] = 0;
-                $response['data']['msg'] = "Ha ocurrido un error: " . $validator->errors();
+                $response['msg']= "Ha ocurrido un error: " . $validator->errors();
             } else {
                 $user = new User();
 
@@ -51,11 +51,11 @@ class UserController extends Controller
 
                 $user->save();
                 $response['status'] = 1;
-                $response['data']['msg'] = "Usuario guardado correctamente";
+                $response['msg'] = "Usuario guardado correctamente";
             }
         } catch (\Exception $e) {
             $response['status'] = 0;
-            $response['data']['msg'] = (env('APP_DEBUG') == "true" ? $e->getMessage() : $this->error);
+            $response['msg'] = (env('APP_DEBUG') == "true" ? $e->getMessage() : $this->error);
         }
         return response()->json($response);
     }
@@ -68,7 +68,7 @@ class UserController extends Controller
      */
     public function login(Request $request)
     {
-        $response = ["status" => 1, "data" => []];
+        $response = ["status" => 1, "data" => [], "msg" => ""];
 
         $data = $request->getContent();
         $data = json_decode($data);
@@ -92,17 +92,17 @@ class UserController extends Controller
                     $user->save();
 
                     $response['data'] = $user;
-                    $response['data']['msg'] = "Usuario Logeado Correctamente";
+                    $response['msg'] = "Usuario Logeado Correctamente";
                 } else {
-                    $response['data']['msg'] = "Ha ocurrido un error, contraseña introducida erronea";
+                    $response['msg'] = "Ha ocurrido un error, contraseña introducida erronea";
                     $response['status'] = 0;
                 }
             } else {
-                $response['data']['msg'] = "Este usuario no está registrado";
+                $response['msg'] = "Este usuario no está registrado";
                 $response['status'] = 0;
             }
         } catch (\Exception $e) {
-            $response['data']['msg'] = (env('APP_DEBUG') == "true" ? $e->getMessage() : $this->error);
+            $response['msg'] = (env('APP_DEBUG') == "true" ? $e->getMessage() : $this->error);
             $response['status'] = 0;
         }
 
@@ -117,7 +117,7 @@ class UserController extends Controller
      */
     public function employee_list(Request $request)
     {
-        $response = ["status" => 1, "data" => []];
+        $response = ["status" => 1, "data" => [], "msg" => ""];
 
         $req_user = $request->user;
 
@@ -138,7 +138,7 @@ class UserController extends Controller
                 $response['status'] = 1;
             }
         } catch (\Exception $e) {
-            $response['data']['msg'] = (env('APP_DEBUG') == "true" ? $e->getMessage() : $this->error);
+            $response['msg'] = (env('APP_DEBUG') == "true" ? $e->getMessage() : $this->error);
             $response['status'] = 0;
         }
 
@@ -153,7 +153,7 @@ class UserController extends Controller
      */
     public function employee_detail(Request $request)
     {
-        $response = ["status" => 1, "data" => []];
+        $response = ["status" => 1, "data" => [], "msg" => ""];
 
         $req_user = $request->user;
 
@@ -166,7 +166,7 @@ class UserController extends Controller
                 if ($user) {
                     if ($req_user->workplace == "Directivo") {
                         if ($user->workplace == "Directivo" && $req_user->id != $user_id) {
-                            $response['data']['msg'] = "No tienes permisos para ver este usuario";
+                            $response['msg'] = "No tienes permisos para ver este usuario";
                             $response['status'] = 0;
                         } else {
                             $response['data'] = $this->employee_detail_response($user);
@@ -176,7 +176,7 @@ class UserController extends Controller
 
                     if ($req_user->workplace == "RRHH") {
                         if ($user->workplace == "Directivo" || $user->workplace == "RRHH" && $req_user->id != $user_id) {
-                            $response['data']['msg'] = "No tienes permisos para ver este usuario";
+                            $response['msg'] = "No tienes permisos para ver este usuario";
                             $response['status'] = 0;
                         } else {
                             $response['data'] = $this->employee_detail_response($user);
@@ -184,15 +184,15 @@ class UserController extends Controller
                         }
                     }
                 } else {
-                    $response['data']['msg'] = "El Usuario No Existe";
+                    $response['msg'] = "El Usuario No Existe";
                     $response['status'] = 0;
                 }
             } else {
-                $response['data']['msg'] = "Introduce el id del usuario";
+                $response['msg'] = "Introduce el id del usuario";
                 $response['status'] = 0;
             }
         } catch (\Exception $e) {
-            $response['data']['msg'] = (env('APP_DEBUG') == "true" ? $e->getMessage() : $this->error);
+            $response['msg'] = (env('APP_DEBUG') == "true" ? $e->getMessage() : $this->error);
             $response['status'] = 0;
         }
 
@@ -207,13 +207,13 @@ class UserController extends Controller
      */
     public function see_profile(Request $request)
     {
-        $response = ["status" => 1, "data" => []];
+        $response = ["status" => 1, "data" => [], "msg" => ""];
 
         try {
             $response['data'] = $request->user;
             $response['status'] = 1;
         } catch (\Exception $e) {
-            $response['data']['msg'] = (env('APP_DEBUG') == "true" ? $e->getMessage() : $this->error);
+            $response['msg'] = (env('APP_DEBUG') == "true" ? $e->getMessage() : $this->error);
             $response['status'] = 0;
         }
         return response()->json($response);
@@ -227,7 +227,7 @@ class UserController extends Controller
      */
     public function retrieve_password(Request $request)
     {
-        $response = ["status" => 1, "data" => []];
+        $response = ["status" => 1, "data" => [], "msg" => ""];
 
         $email = $request->email;
 
@@ -249,18 +249,18 @@ class UserController extends Controller
                     $user->api_token = "";
                     $user->save();
 
-                    $response['data']['msg'] = "Contraseña enviada a Email: " . $user->email;
+                    $response['msg'] = "Contraseña enviada a Email: " . $user->email;
                     $response['status'] = 1;
                 } else {
-                    $response['data']['msg'] = "Este Usuario No Está Registrado";
+                    $response['msg'] = "Este Usuario No Está Registrado";
                     $response['status'] = 0;
                 }
             } else {
-                $response['data']['msg'] = "Introduzca el email";
+                $response['msg'] = "Introduzca el email";
                 $response['status'] = 0;
             }
         } catch (\Exception $e) {
-            $response['data']['msg'] = (env('APP_DEBUG') == "true" ? $e->getMessage() : $this->error);
+            $response['msg'] = (env('APP_DEBUG') == "true" ? $e->getMessage() : $this->error);
             $response['status'] = 0;
         }
 
