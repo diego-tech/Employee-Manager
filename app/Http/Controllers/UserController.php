@@ -93,17 +93,21 @@ class UserController extends Controller
 
                     $response['data'] = $user;
                     $response['msg'] = "Usuario Logeado Correctamente";
+                    $response['status'] = 1;
                 } else {
                     $response['msg'] = "Ha ocurrido un error, contraseña introducida erronea";
                     $response['status'] = 0;
+                    $response['data']['data'] = "";
                 }
             } else {
                 $response['msg'] = "Este usuario no está registrado";
                 $response['status'] = 0;
+                $response['data']['data'] = "";
             }
         } catch (\Exception $e) {
             $response['msg'] = (env('APP_DEBUG') == "true" ? $e->getMessage() : $this->error);
             $response['status'] = 0;
+            $response['data']['data'] = "";
         }
 
         return response()->json($response);

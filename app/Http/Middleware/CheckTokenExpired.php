@@ -35,11 +35,13 @@ class CheckTokenExpired
             } else {
                 $response['msg'] = "Sesión Expirada Vuelva a Logearse";
                 $response['status'] = 0;
+                $response['data']['data'] = ""; 
             }
         
         } else {
             $response['msg'] = "Api Key No Válida";
             $response['status'] = 0;
+            $response['data']['data'] = ""; 
         }
 
         return response()->json($response);
