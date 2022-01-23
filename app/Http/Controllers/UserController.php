@@ -20,25 +20,38 @@ class UserController extends Controller
      */
     public function register(Request $request)
     {
-        $response = ["status" => 1, "data" => [], "msg" => ""];
+        $response = ["status" => 1, "msg" => ""];
 
         $data = $request->getContent();
 
-        $validator = Validator::make(json_decode($data, true), [
-            'name' => 'required|max:255',
-            'email' => 'required|regex:/^([a-z0-9\+_\-]+)(\.[a-z0-9\+_\-]+)*@([a-z0-9\-]+\.)+[a-z]{2,6}$/ix|unique:users|max:255',
-            'password' => 'required|regex:/(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[^A-Za-z0-9]).{6,}/',
-            'workplace' => 'required|in:Directivo,RRHH,Empleado',
-            'salary' => 'required|max:255',
-            'biography' => 'required'
-        ]);
+        $validator = Validator::make(
+            json_decode($data, true),
+            [
+                'name' => 'required|max:255',
+                'email' => 'required|regex:/^([a-z0-9\+_\-]+)(\.[a-z0-9\+_\-]+)*@([a-z0-9\-]+\.)+[a-z]{2,6}$/ix|unique:users|max:255',
+                'password' => 'required|regex:/(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[^A-Za-z0-9]).{6,}/',
+                'workplace' => 'required|in:Directivo,RRHH,Empleado',
+                'salary' => 'required|max:255',
+                'biography' => 'required'
+            ],
+            [
+                'name.required' => "Campo requerido",
+                'email.required' => "Campo requerido",
+                'email.regex' => "El formato del correo electrónico no es válido",
+                'email.unique' => "Ya existe un usuario registrado con ese correo",
+                'password.required' => "Campo requerido",
+                'password.regex' => "El formato de la contraseña no es válido (Ej: H0la^)",
+                'workplace.required' => "Campo requerido",
+                'biography.required' => "Campo requerido"
+            ]
+        );
 
         try {
             $data = json_decode($data);
 
             if ($validator->fails()) {
                 $response['status'] = 0;
-                $response['msg']= "Ha ocurrido un error: " . $validator->errors();
+                $response['msg'] = "Ha ocurrido un error: " . $validator->errors()->first();
             } else {
                 $user = new User();
 
@@ -285,14 +298,20 @@ class UserController extends Controller
 
         $data = $request->getContent();
 
-        $validator = Validator::make(json_decode($data, true), [
-            'name' => 'max:255',
-            'email' => 'regex:/^([a-z0-9\+_\-]+)(\.[a-z0-9\+_\-]+)*@([a-z0-9\-]+\.)+[a-z]{2,6}$/ix|unique:users|max:255',
-            'password' => 'regex:/(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[^A-Za-z0-9]).{6,}/',
-            'workplace' => 'in:Directivo,RRHH,Empleado',
-            'salary' => 'max:255',
-            'biography' => ''
-        ]);
+        $validator = Validator::make(
+            json_decode($data, true),
+            [
+                'name' => 'max:255',
+                'email' => 'regex:/^([a-z0-9\+_\-]+)(\.[a-z0-9\+_\-]+)*@([a-z0-9\-]+\.)+[a-z]{2,6}$/ix|unique:users|max:255',
+                'workplace' => 'in:Directivo,RRHH,Empleado',
+                'salary' => 'max:255',
+                'biography' => ''
+            ],
+            [
+                'email.regex' => "El formato del correo electrónico no es válido",
+                'email.unique' => "Ya existe un usuario registrado con ese correo"
+            ]
+        );
 
         $data = json_decode($data);
 
@@ -313,7 +332,7 @@ class UserController extends Controller
                                 $this->checkModifyData($data, $user);
 
                                 if ($validator->fails()) {
-                                    $response['msg'] = "Ha ocurrido un error: " . $validator->errors();
+                                    $response['msg'] = "Ha ocurrido un error: " . $validator->errors()->first();
                                     $response['status'] = 0;
                                 } else {
                                     $user->save();
@@ -336,7 +355,7 @@ class UserController extends Controller
                                 $this->checkModifyData($data, $user);
 
                                 if ($validator->fails()) {
-                                    $response['msg'] = "Ha ocurrido un error: " . $validator->errors();
+                                    $response['msg'] = "Ha ocurrido un error: " . $validator->errors()->first();
                                     $response['status'] = 0;
                                 } else {
                                     $user->save();
@@ -375,9 +394,15 @@ class UserController extends Controller
         $user = $request->user;
         $data = $request->getContent();
 
-        $validator = Validator::make(json_decode($data, true), [
-            'password' => 'regex:/(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[^A-Za-z0-9]).{6,}/',
-        ]);
+        $validator = Validator::make(
+            json_decode($data, true),
+            [
+                'password' => 'regex:/(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[^A-Za-z0-9]).{6,}/',
+            ],
+            [
+                'password.regex' => "El formato de la contraseña no es válido (Ej: H0la^)",
+            ]
+        );
 
         $data = json_decode($data);
 
@@ -413,7 +438,8 @@ class UserController extends Controller
         return response()->json($response);
     }
 
-    public function logout(Request $request) {
+    public function logout(Request $request)
+    {
         $response = ["status" => 1, "msg" => ""];
 
         try {
