@@ -243,7 +243,7 @@ class UserController extends Controller
      */
     public function retrieve_password(Request $request)
     {
-        $response = ["status" => 1, "data" => [], "msg" => ""];
+        $response = ["status" => 1, "msg" => ""];
 
         $email = $request->email;
 
