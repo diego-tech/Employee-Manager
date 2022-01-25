@@ -18,7 +18,7 @@ class ApiAuth
      */
     public function handle(Request $request, Closure $next)
     {
-        $response = ["status" => 1, "data" => [], "msg" => ""];
+        $response = ["status" => 1, "msg" => ""];
 
         $headers = $request->header('Authorization');
 
@@ -29,7 +29,6 @@ class ApiAuth
             if(!$user) {
                 $response['msg'] = "Api Key No Válida";
                 $response['status'] = 0;
-                $response['data']['data'] = ""; 
             } else {
                 $request->user = $user;
                 return $next($request);
@@ -37,7 +36,6 @@ class ApiAuth
         } else {
             $response['msg'] = "Api Key no introducida";
             $response['status'] = 0;
-            $response['data']['data'] = ""; 
         }
 
         return response()->json($response);
