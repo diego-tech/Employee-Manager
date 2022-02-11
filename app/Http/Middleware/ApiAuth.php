@@ -18,7 +18,7 @@ class ApiAuth
      */
     public function handle(Request $request, Closure $next)
     {
-        $response = ["status" => 1, "msg" => ""];
+        $response = ["status" => 1, "data" => [], "msg" => ""];
 
         $headers = $request->header('Authorization');
 
