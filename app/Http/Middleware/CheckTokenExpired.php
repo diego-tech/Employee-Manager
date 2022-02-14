@@ -19,7 +19,7 @@ class CheckTokenExpired
      */
     public function handle(Request $request, Closure $next)
     {
-        $response = ["status" => 1, "msg" => ""];
+        $response = ["status" => 1, "data" => [], "msg" => ""];
 
         $user = $request->user;
 
