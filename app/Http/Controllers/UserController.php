@@ -85,6 +85,7 @@ class UserController extends Controller
 
         $data = $request->getContent();
         $data = json_decode($data);
+        $user_token = "";
 
         try {
             $user = User::where('email', $data->email)->first();
@@ -246,6 +247,7 @@ class UserController extends Controller
         $response = ["status" => 1, "msg" => ""];
 
         $email = $request->email;
+        $password = "";
 
         try {
             if ($request->has('email')) {
@@ -413,7 +415,7 @@ class UserController extends Controller
                         $user->password = Hash::make($data->password);
 
                         if ($validator->fails()) {
-                            $response['msg'] = "Ha ocurrido un error: " . $validator->errors();
+                            $response['msg'] = "Ha ocurrido un error: " . $validator->errors()->first();
                             $response['status'] = 0;
                         } else {
                             $user->api_token = NULL;
