@@ -25,7 +25,7 @@ class CheckTokenExpired
 
         if($user) {
             $update_token = $user->update_token;
-            $diff24Hours = new DateInterval('PT75M');
+            $diff24Hours = new DateInterval('PT1M');
             $update_token_datetime = new DateTime($update_token);
             $add_period = $update_token_datetime->add($diff24Hours);
             $now = new DateTime('now');
